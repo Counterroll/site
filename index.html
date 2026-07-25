@@ -263,21 +263,20 @@
 
     <div class="term">
       <div class="term-bar">quickstart.ts — live against the public sandbox, no signup</div>
-      <pre><span class="tok-kw">import</span> { Quartermaster, usdc } <span class="tok-kw">from</span> <span class="tok-str">'@quartermaster-sh/sdk'</span>;
+      <pre><span class="tok-kw">import</span> { Counterroll, usdc } <span class="tok-kw">from</span> <span class="tok-str">'@counterroll/sdk'</span>;
 
 <span class="tok-cm">// Public sandbox: one published key, bundled demo agents, a live URL.</span>
-<span class="tok-cm">// (The SDK class ships as `Quartermaster` in 0.1.x; renamed to Counterroll in 0.2.0.)</span>
-<span class="tok-kw">const</span> <span class="tok-const">qm</span> = <span class="tok-kw">new</span> <span class="tok-fn">Quartermaster</span>({ apiKey: <span class="tok-str">'qm_sandbox_publicdemo_v1'</span> });
+<span class="tok-kw">const</span> <span class="tok-const">cr</span> = <span class="tok-kw">new</span> <span class="tok-fn">Counterroll</span>({ apiKey: <span class="tok-str">'qm_sandbox_publicdemo_v1'</span> });
 
-<span class="tok-kw">const</span> <span class="tok-const">ok</span> = <span class="tok-kw">await</span> qm.<span class="tok-fn">check</span>({ agent: <span class="tok-str">'research-bot'</span>, to: <span class="tok-str">'openai'</span>, amount: <span class="tok-fn">usdc</span>(1) });
-<span class="tok-kw">const</span> <span class="tok-const">no</span> = <span class="tok-kw">await</span> qm.<span class="tok-fn">check</span>({ agent: <span class="tok-str">'research-bot'</span>, to: <span class="tok-str">'openai'</span>, amount: <span class="tok-fn">usdc</span>(500) });
+<span class="tok-kw">const</span> <span class="tok-const">ok</span> = <span class="tok-kw">await</span> cr.<span class="tok-fn">check</span>({ agent: <span class="tok-str">'research-bot'</span>, to: <span class="tok-str">'openai'</span>, amount: <span class="tok-fn">usdc</span>(1) });
+<span class="tok-kw">const</span> <span class="tok-const">no</span> = <span class="tok-kw">await</span> cr.<span class="tok-fn">check</span>({ agent: <span class="tok-str">'research-bot'</span>, to: <span class="tok-str">'openai'</span>, amount: <span class="tok-fn">usdc</span>(500) });
 
 console.<span class="tok-fn">log</span>(ok.approved, no.reasons); <span class="tok-cm">// true  ['per_tx_cap_exceeded']</span>
 console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="tok-cm">// signed + hash-chained — verify it yourself</span></pre>
     </div>
 
     <div class="cta-row">
-      <a class="btn primary" href="https://www.npmjs.com/package/@quartermaster-sh/sdk">npm i @quartermaster-sh/sdk →</a>
+      <a class="btn primary" href="https://www.npmjs.com/package/@counterroll/sdk">npm i @counterroll/sdk →</a>
       <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20production%20or%20embedded%20partner&amp;body=Company%3A%0AMotion%3A%20production%20design%20partner%20%2F%20embedded%20governance%20partner%0AWhat%20can%20your%20agent%20or%20platform%20pay%20for%20or%20govern%3F%3A%0APayment%20rail%20or%20facilitator%3A%0AFirst%20policy%20you%20need%20enforced%3A%0ATarget%20production%20date%3A">Talk to us about a pilot</a>
     </div>
     <div class="cta-hint">Run the quickstart above against the live sandbox now — no account, no key request. A production or embedded pilot is a conversation, not a gate.</div>
@@ -454,7 +453,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
         <div class="pilot-step"><b>3 · Architecture</b>Can the control remain useful if you change wallets, facilitators, or settlement infrastructure?</div>
       </div>
       <div class="cta-row">
-        <a class="btn primary" href="https://www.npmjs.com/package/@quartermaster-sh/sdk">Start with the public SDK →</a>
+        <a class="btn primary" href="https://www.npmjs.com/package/@counterroll/sdk">Start with the public SDK →</a>
         <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20production%20or%20embedded%20partner&amp;body=Company%3A%0AMotion%3A%20production%20design%20partner%20%2F%20embedded%20governance%20partner%0AWhat%20can%20your%20agent%20or%20platform%20pay%20for%20or%20govern%3F%3A%0APayment%20rail%20or%20facilitator%3A%0AFirst%20policy%20you%20need%20enforced%3A%0ATarget%20production%20date%3A">Request a partner fit review</a>
       </div>
       <div class="cta-hint">The email opens with five useful prompts, including the partner motion. No generic “tell us more” form and no invented urgency.</div>
@@ -535,8 +534,8 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
   <footer>
     <div class="seq-label">seq <b>007</b> · START WITH ONE PAYMENT FLOW</div>
     <div class="foot-grid">
-      <div class="cell"><span>install</span><code class="install">npm i @quartermaster-sh/sdk</code></div>
-      <div class="cell"><span>package</span><a href="https://www.npmjs.com/package/@quartermaster-sh/sdk">@quartermaster-sh/sdk</a></div>
+      <div class="cell"><span>install</span><code class="install">npm i @counterroll/sdk</code></div>
+      <div class="cell"><span>package</span><a href="https://www.npmjs.com/package/@counterroll/sdk">@counterroll/sdk</a></div>
       <div class="cell"><span>partner</span><a href="mailto:hello@counterroll.dev?subject=Counterroll%20production%20or%20embedded%20partner&amp;body=Company%3A%0AMotion%3A%20production%20design%20partner%20%2F%20embedded%20governance%20partner%0AWhat%20can%20your%20agent%20or%20platform%20pay%20for%20or%20govern%3F%3A%0APayment%20rail%20or%20facilitator%3A%0AFirst%20policy%20you%20need%20enforced%3A%0ATarget%20production%20date%3A">request partner fit review</a></div>
       <div class="cell"><span>contact</span><a href="mailto:hello@counterroll.dev">hello@counterroll.dev</a></div>
     </div>
