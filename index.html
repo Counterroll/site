@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Counterroll — Authorize first. Prove everything.</title>
-<meta name="description" content="Independent enforcement and evidence for agent payments. Put a deny-by-default policy gate between every AI agent and every x402 payment; approve only what fits policy and keep a signed, hash-chained receipt for every decision — before settlement.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230b0e11'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-family='monospace' font-size='22' font-weight='700' fill='%23d29922'%3ECr%3C/text%3E%3C/svg%3E">
+<title>Counterroll — Authorize first. Keep the evidence.</title>
+<meta name="description" content="Deny-by-default policy checks for x402 payment requests your integration routes through Counterroll, with a signed, hash-chained record of each successfully recorded policy-evaluable APPROVE or DENY before settlement. Records show decisions, not that money moved.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2305070A'/%3E%3Crect x='8' y='3' width='8' height='58' fill='%23F4F2EC'/%3E%3Crect x='48' y='3' width='8' height='58' fill='%23F4F2EC'/%3E%3Crect x='30' y='25' width='4' height='14' fill='%233157E8'/%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #0b0e11;
@@ -46,7 +46,15 @@
     background: rgba(11, 14, 17, 0.96);
     backdrop-filter: blur(10px);
   }
-  .brand { color: var(--text); font-size: 0.78rem; letter-spacing: 0.1em; }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text);
+    font-size: 0.78rem;
+    letter-spacing: 0;
+  }
+  .brand-mark { width: 1.15rem; height: 1.15rem; flex: 0 0 auto; }
   .navlinks { display: flex; align-items: center; gap: 1.25rem; font-size: 0.75rem; }
   .navlinks a { color: var(--muted); }
   .navlinks a:last-child { color: var(--accent); }
@@ -240,7 +248,15 @@
 <main>
 
   <nav class="topbar" aria-label="Primary navigation">
-    <a class="brand" href="#hero">Cr / COUNTERROLL</a>
+    <a class="brand" href="#hero">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" fill="#05070A"/>
+        <rect x="8" y="3" width="8" height="58" fill="#F4F2EC"/>
+        <rect x="48" y="3" width="8" height="58" fill="#F4F2EC"/>
+        <rect x="30" y="25" width="4" height="14" fill="#3157E8"/>
+      </svg>
+      <span>COUNTERROLL</span>
+    </a>
     <div class="navlinks">
       <a href="#how">How it works</a>
       <a href="#why">Security</a>
@@ -251,18 +267,18 @@
   <!-- ══════════════════════════ seq 001 · hero ══════════════════════════ -->
   <section id="hero">
     <div class="seq-label">seq <b>001</b> · INDEPENDENT ENFORCEMENT AND EVIDENCE FOR AGENT PAYMENTS</div>
-    <h1>Authorize first.<br>Prove everything.</h1>
-    <p class="sub">Counterroll puts a deny-by-default policy gate between every AI agent and every x402 payment. It evaluates each request against your policy, fails closed on anything it cannot safely evaluate, and returns a signed, hash-chained receipt for every policy-evaluable decision — before settlement. x402 today, running live on Base; a rail-neutral evidence model designed for what comes next.</p>
+    <h1>Authorize first.<br>Keep the evidence.</h1>
+    <p class="sub">For x402 payment requests your integration explicitly routes through it, Counterroll applies a deny-by-default policy check. It evaluates supported requests against your policy, fails closed on anything it cannot safely evaluate, and, when a policy-evaluable APPROVE or DENY is recorded successfully, returns a signed, hash-chained record of it before settlement. Records show what Counterroll decided, not that a payment happened. Supported today: the x402 exact scheme with single-key wallets; examples on this page use Base identifiers from a shared demonstration sandbox.</p>
 
     <div class="hero-proof" aria-label="Core capabilities">
       <span>Deny by default</span>
-      <span>Per-transaction and rolling-window caps</span>
+      <span>Per-agent per-transaction and rolling-window caps</span>
       <span>Payee, network, and asset controls</span>
-      <span>Independently verifiable evidence</span>
+      <span>Decision records you can verify</span>
     </div>
 
     <div class="term">
-      <div class="term-bar">quickstart.ts — live against the public sandbox, no signup</div>
+      <div class="term-bar">quickstart.ts — runs against the shared public sandbox, no signup</div>
       <pre><span class="tok-kw">import</span> { Counterroll, usdc } <span class="tok-kw">from</span> <span class="tok-str">'@counterroll/sdk'</span>;
 
 <span class="tok-cm">// Public sandbox: one published key, bundled demo agents, a live URL.</span>
@@ -277,15 +293,15 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
 
     <div class="cta-row">
       <a class="btn primary" href="https://www.npmjs.com/package/@counterroll/sdk">npm i @counterroll/sdk →</a>
-      <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20production%20or%20embedded%20partner&amp;body=Company%3A%0AMotion%3A%20production%20design%20partner%20%2F%20embedded%20governance%20partner%0AWhat%20can%20your%20agent%20or%20platform%20pay%20for%20or%20govern%3F%3A%0APayment%20rail%20or%20facilitator%3A%0AFirst%20policy%20you%20need%20enforced%3A%0ATarget%20production%20date%3A">Talk to us about a pilot</a>
+      <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20offline%20evaluation&amp;body=Company%3A%0AWhat%20would%20you%20like%20to%20evaluate%3F%3A%0APayment%20rail%20or%20facilitator%20you%20use%3A%0AFirst%20policy%20you%20would%20test%3A">Discuss an offline evaluation</a>
     </div>
-    <div class="cta-hint">Run the quickstart above against the live sandbox now — no account, no key request. A production or embedded pilot is a conversation, not a gate.</div>
+    <div class="cta-hint">Run the quickstart above against the shared public sandbox — no account, no key request. The sandbox is a shared demonstration with synthetic inputs and a published key. It is not a production service, and its isolation has not been established, so do not treat it as an isolated testnet environment. Use only the bundled synthetic demo inputs; never send real credentials, wallet keys, signed payment authorizations or customer data.</div>
 
     <div class="market-signal">
       <div class="label">WHY NOW</div>
       <div>
-        <p><a href="https://www.x402.org/">x402.org</a> reported more than 75 million transactions and $24 million in volume over the prior 30 days (observed 2026-07-14). <a href="https://developers.cloudflare.com/agents/tools/payments/x402/">Cloudflare Agents</a> now supports x402 payments directly. The payment rail is scaling; teams need authorization and audit evidence before autonomous spend reaches production.</p>
-        <small>Market context observed 2026-07-14 — protocol signals, not Counterroll customer or revenue claims.</small>
+        <p><a href="https://www.x402.org/">x402</a> is an open protocol for payments over HTTP, and agent tooling such as <a href="https://developers.cloudflare.com/agents/tools/payments/x402/">Cloudflare Agents</a> documented x402 payment support as of 2026-07-14. Teams that let agents pay need to decide what is authorized and keep evidence of those decisions.</p>
+        <small>Protocol context observed 2026-07-14. Not a claim about current adoption, or about Counterroll customers or revenue.</small>
       </div>
     </div>
   </section>
@@ -295,24 +311,24 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
   <!-- ══════════════════════════ seq 002 · buyer value ══════════════════════════ -->
   <section id="outcomes">
     <div class="seq-label">seq <b>002</b> · WHAT YOUR TEAM GAINS</div>
-    <h2>Autonomy without ungoverned spend</h2>
-    <p class="sub">A wallet limit can cap an amount. Counterroll records which agent asked, which policy was applied, why the decision was made, and whether the evidence still verifies later.</p>
+    <h2>Policy checks for routed agent payment requests</h2>
+    <p class="sub">A wallet limit can cap an amount. For supported requests that reach policy evaluation, Counterroll records which agent asked, which policy was applied, why the decision was made, and whether the record still verifies later.</p>
 
     <div class="buyer-grid">
       <article class="buyer-card">
         <div class="num">01 / CONTROL</div>
         <h3>Make policy executable</h3>
-        <p>Express per-payment and rolling-window caps plus payee, network, and asset rules. No matching policy, ambiguous input, or malformed payload means DENY.</p>
+        <p>Express per-agent caps for each payment and over a rolling window, plus payee, network, and asset rules. No matching policy or an ambiguous rule means DENY. Malformed inputs are rejected; some rejections are errors rather than signed policy DENYs.</p>
       </article>
       <article class="buyer-card">
         <div class="num">02 / EVIDENCE</div>
         <h3>Keep the reason, not just the result</h3>
-        <p>Every policy-evaluable APPROVE and DENY preserves the applied policy snapshot—or its absence—plus decision reasons, hash-chain link, and organization signature.</p>
+        <p>Each successfully recorded policy-evaluable APPROVE and DENY is signed and preserves the applied policy snapshot—or its absence—plus decision reasons and a hash-chain link. Some requests refused before policy evaluation are recorded separately without a signature, and some refusals leave no record. A missing record is not proof that no request or payment occurred.</p>
       </article>
       <article class="buyer-card">
         <div class="num">03 / INDEPENDENCE</div>
-        <h3>Keep proof independent of settlement</h3>
-        <p>Policy and audit history live outside any one facilitator. Swap the upstream x402 facilitator without rebuilding your governance layer or surrendering the ledger — x402 today, a rail-neutral evidence model designed for what comes next.</p>
+        <h3>Keep decision records separate from settlement</h3>
+        <p>Policy and decision history live in Counterroll, not in the facilitator. The upstream x402 facilitator is configured per organization; changing it does not rewrite existing records, and each facilitator still needs to be tested for compatibility.</p>
       </article>
     </div>
   </section>
@@ -327,19 +343,19 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
     <dl class="steps">
       <div class="step">
         <dt>1 · check()</dt>
-        <dd>Your agent asks first. One call carries the payee, amount, network, and asset of the x402 payment it wants to make. Deny by default: no matching policy, an ambiguous rule, or a malformed payload all come back DENY. Nothing approves on an error path.</dd>
+        <dd>Your agent asks first. One call carries the payee, amount, network, and asset of the x402 payment it wants to make. Deny by default: no matching policy or an ambiguous rule comes back DENY. Malformed inputs are rejected; some rejections are errors rather than signed policy DENYs. Nothing approves on an error path.</dd>
       </div>
       <div class="step">
         <dt>2 · signed receipt</dt>
-        <dd>Every policy-evaluable decision returns an attestation signed with your org's Ed25519 key, carrying the exact policy snapshot it was evaluated against. Unknown agents, malformed payloads, and replayed nonces fail closed and are recorded separately because they cannot be represented safely on the chain.</dd>
+        <dd>When a policy-evaluable APPROVE or DENY is recorded successfully, Counterroll returns an attestation signed with your organization's Counterroll Ed25519 key, carrying the exact policy snapshot it was evaluated against. If the record cannot be written, the request fails rather than being approved without one. Requests refused before policy evaluation, such as from unknown agents, with malformed payloads, or with replayed nonces, fail closed and are kept off the chain: some are recorded separately without a signature, and some leave no record. Refusals at settlement time do not produce a signed decision record. A missing record is not proof that no request or payment occurred.</dd>
       </div>
       <div class="step">
         <dt>3 · hash chain</dt>
-        <dd>Each receipt stores the SHA-256 of the one before it, and the ledger is append-only — enforced in code, in review, and by a Postgres trigger that raises on UPDATE or DELETE. History can be extended, never edited.</dd>
+        <dd>Each receipt stores the SHA-256 of the one before it. Ordinary writes are append-only — enforced in code, in review, and by a Postgres trigger that raises on UPDATE or DELETE. A database owner can still bypass triggers, which is why verification checks signatures instead of trusting the database.</dd>
       </div>
       <div class="step">
         <dt>4 · verify yourself</dt>
-        <dd><code>qm.verify({ publicKey })</code> pulls the raw rows and re-derives the entire chain locally: every hash recomputed, every signature checked against a key you pinned out-of-band. An attacker who rewrote the database <em>and</em> re-signed it with a fresh key passes the server's own check — and fails yours.</dd>
+        <dd><code>cr.verify({ publicKey })</code> pulls the raw rows and re-derives the chain you were given: each hash recomputed, each signature checked against a public key you authenticated out-of-band. To notice missing or withheld records you also need a trusted reference for the latest expected record. Verification shows the integrity of the records you received; it does not show the chain is complete or current, or that any payment happened.</dd>
       </div>
     </dl>
 
@@ -399,27 +415,27 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
 }</pre>
       </div>
     </div>
-    <p class="caption">Rows 1 and 2 of Counterroll's live public sandbox chain (<code>org_sandbox</code>), pulled read-only from the deployed API on 2026-07-23. Every hash and signature is real: the DENY's <code>prevHash</code> is the APPROVE's <code>hash</code>, and both signatures verify against the org's published anchor <code>e9d3619e…b6d1</code>. Run <code>qm.verify({ publicKey })</code> to re-derive the whole chain yourself against that key — 132 signed rows the day this was captured, and append-only since. Note what the deny costs you: nothing moved, and you still got a receipt.</p>
+    <p class="caption">Rows 1 and 2 of Counterroll's shared public sandbox chain (<code>org_sandbox</code>), read from the deployed sandbox API on 2026-07-23. The sandbox is a shared demonstration with synthetic inputs and a published key; it is not a production service, and its isolation has not been established. The hashes and signatures are shown as returned then: the DENY's <code>prevHash</code> is the APPROVE's <code>hash</code>, and both signatures verified against the sandbox's published anchor <code>e9d3619e…b6d1</code>. <code>cr.verify({ publicKey })</code> re-derives the chain you are given against that key; it does not show that the chain is complete or current. A DENY records that Counterroll refused the request under policy; on its own it does not show what happened on the payment rail.</p>
   </section>
 
   <div class="chain-link">prevHash: <span class="h">dbf1b4efee0ff1baf6e76dce561627452f25affecae65d1735fc2ae0eb97c616</span> · sandbox seq 3 · APPROVE · $1.00 → openai</div>
 
   <!-- ══════════════════════════ seq 004 · partner paths ══════════════════════════ -->
   <section id="pilot">
-    <div class="seq-label">seq <b>004</b> · PRODUCTION + EMBEDDED PARTNERS</div>
-    <h2>Prove it in production. Then distribute it.</h2>
-    <p class="sub">The SDK is public and self-serve — start there. Beyond it, Counterroll supports two focused partner paths: teams putting one governed payment flow into production, and platforms embedding the same independent control across many customers. Both begin with a real integration surface—not a generic AI demo.</p>
+    <div class="seq-label">seq <b>004</b> · EVALUATION</div>
+    <h2>Start with an offline evaluation.</h2>
+    <p class="sub">The SDK is public — start there. Beyond it, we are open to discussing an offline evaluation that uses synthetic inputs and involves no payments. Production use and embedded platform integrations are exploratory conversations only: they are gated on readiness work and are not an offering available today.</p>
 
     <div class="motion-grid">
       <div class="motion-card">
-        <div class="label">01 · PRODUCTION DESIGN PARTNER</div>
-        <h3>Govern one high-stakes agent flow.</h3>
-        <p>Best for enterprises and infrastructure teams with a named technical owner, a production path, and a policy they refuse to ship without. <strong>Outcome:</strong> enforced decisions plus independently verifiable evidence.</p>
+        <div class="label">01 · OFFLINE EVALUATION</div>
+        <h3>Test one policy against synthetic requests.</h3>
+        <p>For teams with a named technical owner and a policy they want to test. Inputs are synthetic and no payment is made. <strong>What it shows:</strong> how the policy decides your test cases, and how the resulting records verify with your own tooling.</p>
       </div>
       <div class="motion-card">
-        <div class="label">02 · EMBEDDED GOVERNANCE PARTNER</div>
-        <h3>Make policy and proof part of your platform.</h3>
-        <p>Best for wallets, facilitators, agent runtimes, marketplaces, and cloud platforms that want independent governance without rebuilding policy and signed evidence. <strong>Outcome:</strong> one integration serving many downstream customers.</p>
+        <div class="label">02 · PRODUCTION OR EMBEDDED · EXPLORATORY</div>
+        <h3>Talk about later stages, without commitments.</h3>
+        <p>For wallets, facilitators, agent runtimes, marketplaces, and platforms considering production or embedded use. These are exploratory conversations: not available today, gated on readiness work, and not included in an offline evaluation.</p>
       </div>
     </div>
 
@@ -430,7 +446,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
           <li>Your agent will initiate x402 payments or paid tool calls.</li>
           <li>Security or finance needs enforceable limits and decision evidence.</li>
           <li>You want policy independent of one wallet or facilitator.</li>
-          <li>You have a production path and a technical owner.</li>
+          <li>You have a technical owner who can define test cases.</li>
         </ul>
       </div>
       <div class="fit-col bad">
@@ -445,36 +461,36 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
     </div>
 
     <div class="pilot-box">
-      <h3>Bring one real payment flow or integration surface.</h3>
-      <p>We will use it to test the three questions that determine whether Counterroll earns a place in your stack—or inside the product you distribute.</p>
+      <h3>Bring one payment flow you want to reason about.</h3>
+      <p>In an offline evaluation, synthetic versions of that flow test three questions about whether Counterroll fits your stack.</p>
       <div class="pilot-steps">
         <div class="pilot-step"><b>1 · Enforcement</b>Can the policy fail closed on the exact agent, payee, amount, network, and asset?</div>
-        <div class="pilot-step"><b>2 · Evidence</b>Can your team re-derive the decision chain and verify signatures without trusting our API?</div>
-        <div class="pilot-step"><b>3 · Architecture</b>Can the control remain useful if you change wallets, facilitators, or settlement infrastructure?</div>
+        <div class="pilot-step"><b>2 · Evidence</b>Can your team re-derive the decision records and verify signatures with a key it authenticated independently?</div>
+        <div class="pilot-step"><b>3 · Architecture</b>Would the control remain useful if you changed wallets, facilitators, or settlement infrastructure?</div>
       </div>
       <div class="cta-row">
         <a class="btn primary" href="https://www.npmjs.com/package/@counterroll/sdk">Start with the public SDK →</a>
-        <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20production%20or%20embedded%20partner&amp;body=Company%3A%0AMotion%3A%20production%20design%20partner%20%2F%20embedded%20governance%20partner%0AWhat%20can%20your%20agent%20or%20platform%20pay%20for%20or%20govern%3F%3A%0APayment%20rail%20or%20facilitator%3A%0AFirst%20policy%20you%20need%20enforced%3A%0ATarget%20production%20date%3A">Request a partner fit review</a>
+        <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20offline%20evaluation&amp;body=Company%3A%0AWhat%20would%20you%20like%20to%20evaluate%3F%3A%0APayment%20rail%20or%20facilitator%20you%20use%3A%0AFirst%20policy%20you%20would%20test%3A">Discuss an offline evaluation</a>
       </div>
-      <div class="cta-hint">The email opens with five useful prompts, including the partner motion. No generic “tell us more” form and no invented urgency.</div>
+      <div class="cta-hint">The email opens with a few prompts. It starts a conversation about an offline synthetic evaluation; it is not an order, and it includes no live, testnet or production access.</div>
     </div>
 
     <div class="objections">
       <details>
         <summary>Why not rely only on wallet spending limits?</summary>
-        <p>Wallet limits are useful and Counterroll does not replace them. Counterroll adds an organization-scoped decision layer: agent identity, policy assignment, payee and rail restrictions, rolling-window context, explicit deny reasons, and a signed policy snapshot preserved in an independently verifiable chain.</p>
+        <p>Wallet limits are useful and Counterroll does not replace them. Counterroll adds a decision layer for each organization: agent identity, a policy assigned to each agent with per-agent per-payment and rolling-window caps, payee and rail restrictions, explicit deny reasons, and a signed policy snapshot for each successfully recorded policy-evaluable decision, kept in a chain you can verify.</p>
       </details>
       <details>
         <summary>Does Counterroll hold funds or settle payments?</summary>
-        <p>No. Counterroll authorizes, attests, and records. Approved x402 traffic is proxied to the facilitator your organization configures. Settlement remains upstream.</p>
+        <p>Counterroll holds no funds and no settlement keys. It authorizes, attests, and records. When Counterroll approves a settlement request, it proxies that request to the facilitator your organization configures, and the facilitator may then make the payment. Settlement itself happens upstream.</p>
       </details>
       <details>
         <summary>What happens if the Counterroll database is rewritten?</summary>
-        <p>The SDK can pull raw rows and locally re-derive every hash and signature against an organization public key pinned outside the database. A rewritten chain signed with a different key fails that client-side verification.</p>
+        <p>The SDK can pull raw rows and locally re-derive their hashes and signatures against an organization public key you authenticated outside the database. A rewritten chain signed with a different key fails that client-side verification. This detects changes to signed fields; it does not detect records withheld from you unless you also hold a trusted reference for the latest expected record.</p>
       </details>
       <details>
         <summary>What does a DENY look like to the agent?</summary>
-        <p>A DENY is a successful policy evaluation, not an exception. The agent receives <code>approved: false</code> plus machine-readable reasons such as <code>per_tx_cap_exceeded</code>; the decision is retained as evidence before money moves.</p>
+        <p>A DENY is a successful policy evaluation, not an exception. The agent receives <code>approved: false</code> plus machine-readable reasons such as <code>per_tx_cap_exceeded</code>, and a successfully recorded DENY is kept as a signed record. It records Counterroll's refusal; on its own it does not show what happened on the payment rail.</p>
       </details>
     </div>
   </section>
@@ -485,23 +501,23 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
   <section id="why">
     <div class="seq-label">seq <b>005</b> · WHY IT EXISTS</div>
     <h2>Built for the questions that follow an incident.</h2>
-    <p class="sub">We audit Counterroll the way an attacker would, before each layer ships. Two findings from those audits shaped the architecture. Both are in the git history.</p>
+    <p class="sub">We review Counterroll internally the way an attacker would. Two findings from internal reviews in July 2026 shaped the architecture. These were internal reviews, not independent audits, and both fixes are recorded in our private repository history.</p>
 
     <div class="finding deny">
       <h3>Finding 001 — the double-spend race</h3>
-      <div class="meta">audit 2026-07-05 · fixed in commit <code>3a03a17</code></div>
+      <div class="meta">internal review 2026-07-05 · fixed in commit <code>3a03a17</code></div>
       <p>The window cap said $200 a day. The first build read the agent's window spend, evaluated the policy, then appended the attestation — three steps, no lock. Two near-cap requests arriving at once would each read the same "spent so far," each pass evaluation, and both get approved: window overspent, with two individually valid receipts to show for it. A textbook time-of-check/time-of-use race, in the one component whose job is making spend limits mean something.</p>
-      <p>The fix put the replay check, the window read, the evaluation, and the append inside a single transaction holding the org's row lock — and the regression test now races concurrent near-cap requests to prove it. Nothing evaluates outside that transaction.</p>
+      <p>The fix put the replay check, the window read, the evaluation, and the append inside a single transaction holding the org's row lock — and the regression test now races concurrent near-cap requests to check it. Nothing evaluates outside that transaction. This fix covers policy decisions; handling of concurrent or retried settlement attempts is a separate problem that is still being worked on.</p>
     </div>
 
     <div class="finding deny">
       <h3>Finding 002 — the wallet that impersonated an agent</h3>
-      <div class="meta">audit 2026-07-08 · fixed in commit <code>2b76acc</code></div>
-      <p>For drop-in x402 compatibility, the gateway once accepted a fallback: if the agent-signature headers were missing, resolve the agent from the payment's EIP-3009 <code>from</code> wallet. Read that from an attacker's chair. The API key authenticates the <em>tenant</em>, not the <em>agent</em> — so anyone holding the org key could attribute spend to any agent in the org, minting APPROVE attestations and draining that agent's window budget, with no proof of possession of the agent's key. (Never settlements — the EIP-712 signature still fails upstream.)</p>
+      <div class="meta">internal review 2026-07-08 · fixed in commit <code>2b76acc</code></div>
+      <p>For drop-in x402 compatibility, the gateway once accepted a fallback: if the agent-signature headers were missing, resolve the agent from the payment's EIP-3009 <code>from</code> wallet. Read that from an attacker's chair. The API key authenticates the <em>tenant</em>, not the <em>agent</em> — so anyone holding the org key could attribute spend to any agent in the org, minting APPROVE attestations and draining that agent's window budget, with no proof of possession of the agent's key. (The org key alone does not supply the payer's EIP-712 signature that settlement needs upstream, but that is not a guarantee against settlement misuse.)</p>
       <p>The gateway now requires the agent's Ed25519 request signature by default and rejects the wallet path with 401 before any ledger write; the fallback survives only as an explicit per-org opt-in, documented as the tradeoff it is.</p>
     </div>
 
-    <p class="closer">A tamper-evident ledger is only as good as the code that writes to it. The audits continue; the relevant fixes, tests, and threat-model decisions are available during technical diligence.</p>
+    <p class="closer">A tamper-evident ledger is only as good as the code that writes to it. Internal reviews continue, and some settlement-time risks remain open. The relevant fixes, tests, and threat-model decisions can be discussed during technical diligence.</p>
   </section>
 
   <div class="chain-link">prevHash: <span class="h">e1c017d7db8855cff5af7475198e7ced4aeb8f6474c7e0a0ad2b0b2624da0eaf</span> · sandbox seq 5 · APPROVE · $1.00 → openai</div>
@@ -510,25 +526,25 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
   <section id="independence">
     <div class="seq-label">seq <b>006</b> · INDEPENDENCE</div>
     <h2>The system that authorizes should not be the only system you must trust.</h2>
-    <p>Counterroll moves no money: v1 authorizes, attests, and records, and settlement is proxied to whichever x402 facilitator you configure. A governance layer is only credible if it can say no to the rail itself — so it is built to be checked without trusting us.</p>
+    <p>Counterroll has no custody and holds no settlement keys: v1 authorizes, attests, and records. When it approves a settlement request, it proxies that request to the x402 facilitator your organization configures, and that facilitator may then make the payment. A governance layer is only credible if it can say no to the rail itself — so its records are built to be checked against a key you authenticate yourself, rather than on our word.</p>
 
     <div class="motion-grid">
       <div class="motion-card">
         <div class="label">NO CUSTODY</div>
-        <h3>We never move the money.</h3>
-        <p>Counterroll holds no funds and no settlement keys. Approved x402 traffic is proxied to your configured facilitator, and your receipts ride in the standard x402 <code>extensions</code> field — swap facilitators without touching your ledger.</p>
+        <h3>No custody, no settlement keys.</h3>
+        <p>Counterroll holds no funds and no settlement keys. Approved settlement requests are proxied to your configured facilitator, which may then make the payment, and your receipts ride in the standard x402 <code>extensions</code> field. Changing the configured facilitator does not rewrite existing records; each facilitator still needs to be tested for compatibility.</p>
       </div>
       <div class="motion-card">
         <div class="label">NO SILENT FALLBACK</div>
         <h3>Failure closes, never opens.</h3>
-        <p>Deny by default, everywhere: no matching policy, an ambiguous rule, or a malformed payload all fail closed. An unavailable policy service cannot quietly become permission to pay, and the wallet-impersonation fallback stays off unless an org explicitly opts in.</p>
+        <p>Deny by default in the decision path: no matching policy, an ambiguous rule, or a malformed payload all fail closed. An unavailable policy service cannot quietly become permission to pay, and the wallet-impersonation fallback stays off unless an org explicitly opts in.</p>
       </div>
     </div>
 
-    <p style="margin-top:1.5rem">No trust required: <code>qm.verify({ publicKey })</code> re-derives every hash and signature locally against a key you pin out-of-band — <code>e9d3619e…b6d1</code> for the public sandbox. A rewritten, re-signed database passes our server's own check and fails yours.</p>
+    <p style="margin-top:1.5rem">Verify against the organization's public key, authenticated independently: <code>cr.verify({ publicKey })</code> re-derives the hashes and signatures of the records you receive against that key — <code>e9d3619e…b6d1</code> for the public sandbox. A database rewritten and re-signed with a different key fails that check. To notice missing records, compare against a trusted reference for the latest expected record. Verification does not show that the chain is complete or that any payment happened.</p>
   </section>
 
-  <div class="chain-link">prevHash: <span class="h">063ab6d9b55e036d7eb48bff0506b6310925471ed754a5ddd7a9065d1a5822de</span> · sandbox seq 6 · DENY · chain verifies against anchor e9d3619e…</div>
+  <div class="chain-link">prevHash: <span class="h">063ab6d9b55e036d7eb48bff0506b6310925471ed754a5ddd7a9065d1a5822de</span> · sandbox seq 6 · DENY · signed under sandbox anchor e9d3619e…</div>
 
   <!-- ══════════════════════════ seq 007 · footer ══════════════════════════ -->
   <footer>
@@ -536,10 +552,10 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
     <div class="foot-grid">
       <div class="cell"><span>install</span><code class="install">npm i @counterroll/sdk</code></div>
       <div class="cell"><span>package</span><a href="https://www.npmjs.com/package/@counterroll/sdk">@counterroll/sdk</a></div>
-      <div class="cell"><span>partner</span><a href="mailto:hello@counterroll.dev?subject=Counterroll%20production%20or%20embedded%20partner&amp;body=Company%3A%0AMotion%3A%20production%20design%20partner%20%2F%20embedded%20governance%20partner%0AWhat%20can%20your%20agent%20or%20platform%20pay%20for%20or%20govern%3F%3A%0APayment%20rail%20or%20facilitator%3A%0AFirst%20policy%20you%20need%20enforced%3A%0ATarget%20production%20date%3A">request partner fit review</a></div>
+      <div class="cell"><span>evaluation</span><a href="mailto:hello@counterroll.dev?subject=Counterroll%20offline%20evaluation&amp;body=Company%3A%0AWhat%20would%20you%20like%20to%20evaluate%3F%3A%0APayment%20rail%20or%20facilitator%20you%20use%3A%0AFirst%20policy%20you%20would%20test%3A">discuss an offline evaluation</a></div>
       <div class="cell"><span>contact</span><a href="mailto:hello@counterroll.dev">hello@counterroll.dev</a></div>
     </div>
-    <div class="colophon">ledger: append-only · chain: SHA-256 · signatures: Ed25519 · amounts: atomic-unit strings — no floats were harmed</div>
+    <div class="colophon">ledger: append-only writes · chain: SHA-256 · signatures: Ed25519 · amounts: atomic-unit strings — no floats were harmed</div>
   </footer>
 
 </main>
