@@ -4,8 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Counterroll — Authorize first. Keep the evidence.</title>
-<meta name="description" content="Deny-by-default policy checks for x402 payment requests your integration routes through Counterroll, with a signed, hash-chained record of each successfully recorded policy-evaluable APPROVE or DENY before settlement. Records show decisions, not that money moved.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2305070A'/%3E%3Crect x='8' y='3' width='8' height='58' fill='%23F4F2EC'/%3E%3Crect x='48' y='3' width='8' height='58' fill='%23F4F2EC'/%3E%3Crect x='30' y='25' width='4' height='14' fill='%233157E8'/%3E%3C/svg%3E">
+<meta name="description" content="Counterroll checks the x402 payment requests you route through it against your spending rules. When it records a policy decision on the ledger, it signs a record you can verify offline. Records show decisions, not that money moved.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://counterroll.dev/">
+<meta property="og:site_name" content="Counterroll">
+<meta property="og:title" content="Counterroll — Authorize first. Keep the evidence.">
+<meta property="og:description" content="Signed records of why an agent payment was approved or refused, checkable offline. Free record verifier and x402 setup check.">
+<meta property="og:image" content="https://counterroll.dev/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Counterroll: Authorize first. Keep the evidence.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@UseCounterroll">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2307090D'/%3E%3Cg transform='translate(13 10) scale(.5)'%3E%3Cpath fill='%23F3F1EA' d='M0 0h26v30h-12v24h12v30H0z'/%3E%3Cpath fill='%23F3F1EA' d='M76 0H50v30h12v24H50v30h26z'/%3E%3Crect x='26' y='36' width='24' height='12' fill='%233D5BFF'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #0b0e11;
@@ -17,21 +28,27 @@
     --approve: #3fb950;
     --deny: #f85149;
     --accent: #d29922;
+    --ink: #f3f1ea;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    font-size: 15px;
-    line-height: 1.65;
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
   main { max-width: 60rem; margin: 0 auto; padding: 0 1.25rem; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  code { font-family: inherit; }
+  code, pre, .seq-label, .chain-link, .term-bar, .verdict-bar, .buyer-card .num, .motion-card .label,
+  .market-signal .label, .fit-col h3, .proves-col h3, .step dt, .finding .meta, .install, .colophon,
+  .foot-grid .cell span { font-family: var(--mono); }
 
   .topbar {
     position: sticky;
@@ -49,15 +66,19 @@
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    color: var(--text);
-    font-size: 0.78rem;
-    letter-spacing: 0;
+    gap: 0.55rem;
+    color: var(--ink);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
-  .brand-mark { width: 1.15rem; height: 1.15rem; flex: 0 0 auto; }
-  .navlinks { display: flex; align-items: center; gap: 1.25rem; font-size: 0.75rem; }
-  .navlinks a { color: var(--muted); }
-  .navlinks a:last-child { color: var(--accent); }
+  .brand:hover { text-decoration: none; }
+  .brand-mark { width: 1.05rem; height: 1.15rem; flex: 0 0 auto; }
+  .navlinks { display: flex; align-items: center; gap: 1.4rem; font-size: 0.86rem; }
+  .navlinks a { color: var(--muted); white-space: nowrap; }
+  .navlinks a:hover { color: var(--text); text-decoration: none; }
+  .navlinks a.nav-cta { color: var(--accent); }
+  .navlinks .short { display: none; }
 
   /* ledger row = section */
   section { padding: 3.5rem 0 4rem; border-top: 1px solid var(--rule); }
@@ -82,24 +103,40 @@
   .chain-link .h { color: #3d4650; }
 
   h1 {
-    font-size: clamp(1.9rem, 5vw, 3rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-    margin-bottom: 1.1rem;
+    font-size: clamp(2.5rem, 7vw, 4.25rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+    color: var(--ink);
+    margin-bottom: 1.4rem;
   }
-  h2 { font-size: 1.45rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 1.25rem; }
-  .sub { color: var(--muted); max-width: 44rem; margin-bottom: 2.25rem; }
+  h2 { font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 650; letter-spacing: -0.025em; line-height: 1.2; color: var(--ink); margin-bottom: 1.25rem; }
+  h3 { letter-spacing: -0.01em; color: var(--ink); }
+  .lede { color: #b9becA; font-size: clamp(1.1rem, 2.2vw, 1.3rem); line-height: 1.5; max-width: 40rem; margin-bottom: 2rem; }
+  .sub { color: var(--muted); max-width: 44rem; margin-bottom: 2.25rem; font-size: 1.05rem; }
   p { max-width: 44rem; }
   .hero-proof {
     display: flex;
     flex-wrap: wrap;
     gap: 0.55rem 1.4rem;
-    margin: -0.8rem 0 2rem;
+    margin: 2rem 0 0;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.88rem;
   }
   .hero-proof span::before { content: "✓"; color: var(--approve); margin-right: 0.45rem; }
+  .hero-more { margin-top: 1rem; font-size: 0.9rem; color: var(--muted); }
+
+  /* what a record proves */
+  .proves { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; margin-top: 2.75rem; }
+  .proves-col { background: var(--panel); padding: 1.35rem 1.4rem; }
+  .proves-col h3 { font-size: 0.74rem; letter-spacing: 0.1em; margin-bottom: 0.75rem; font-weight: 600; }
+  .proves-col.yes h3 { color: var(--approve); }
+  .proves-col.no h3 { color: var(--deny); }
+  .proves-col ul { list-style: none; color: var(--muted); font-size: 0.9rem; }
+  .proves-col li { margin: 0.55rem 0; padding-left: 1.1rem; position: relative; }
+  .proves-col.yes li::before { content: "+"; color: var(--approve); position: absolute; left: 0; font-family: var(--mono); }
+  .proves-col.no li::before { content: "−"; color: var(--deny); position: absolute; left: 0; font-family: var(--mono); }
+  .proves .scope { grid-column: 1 / -1; background: var(--panel); color: var(--faint); font-size: 0.82rem; padding: 0.9rem 1.4rem; max-width: none; }
 
   .term {
     border: 1px solid var(--rule);
@@ -136,17 +173,19 @@
   .cta-row { display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 1.75rem; }
   .btn {
     display: inline-block;
+    font-weight: 500;
     border: 1px solid var(--rule);
     border-radius: 6px;
-    padding: 0.6rem 1.1rem;
-    font-size: 0.85rem;
+    padding: 0.7rem 1.25rem;
+    font-size: 0.95rem;
     color: var(--text);
     background: var(--panel);
   }
   .btn.primary { border-color: var(--accent); color: #0b0e11; background: var(--accent); font-weight: 600; }
   .btn.primary:hover { text-decoration: none; background: #e3ad3d; }
   a.btn:hover { text-decoration: none; border-color: var(--muted); }
-  .cta-hint { color: var(--faint); font-size: 0.72rem; margin-top: 0.6rem; }
+  .cta-hint { color: var(--faint); font-size: 0.82rem; margin-top: 0.75rem; max-width: 44rem; }
+  .cta-hint code { color: inherit; }
 
   .market-signal {
     display: grid;
@@ -158,42 +197,42 @@
     background: var(--panel);
   }
   .market-signal .label { color: var(--accent); font-size: 0.72rem; letter-spacing: 0.1em; }
-  .market-signal p { color: var(--muted); font-size: 0.82rem; max-width: none; }
+  .market-signal p { color: var(--muted); font-size: 0.92rem; max-width: none; }
   .market-signal small { display: block; color: var(--faint); margin-top: 0.45rem; font-size: 0.7rem; }
 
   .buyer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-top: 2rem; }
   .buyer-card { background: var(--bg); padding: 1.35rem; }
   .buyer-card .num { color: var(--accent); font-size: 0.72rem; letter-spacing: 0.08em; }
   .buyer-card h3 { font-size: 0.98rem; margin: 0.55rem 0; }
-  .buyer-card p { color: var(--muted); font-size: 0.84rem; }
+  .buyer-card p { color: var(--muted); font-size: 0.92rem; }
 
   .motion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin-top: 2rem; }
   .motion-card { background: var(--bg); padding: 1.35rem; }
   .motion-card .label { color: var(--accent); font-size: 0.72rem; letter-spacing: 0.09em; }
   .motion-card h3 { font-size: 1rem; margin: 0.55rem 0; }
-  .motion-card p { color: var(--muted); font-size: 0.84rem; }
+  .motion-card p { color: var(--muted); font-size: 0.92rem; }
   .motion-card strong { color: var(--text); }
 
   .fit-box { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 2rem 0; }
   .fit-col { background: var(--panel); padding: 1.35rem; }
   .fit-col h3 { font-size: 0.8rem; letter-spacing: 0.08em; margin-bottom: 0.8rem; }
-  .fit-col ul { list-style: none; color: var(--muted); font-size: 0.84rem; }
+  .fit-col ul { list-style: none; color: var(--muted); font-size: 0.92rem; }
   .fit-col li { margin: 0.5rem 0; padding-left: 1.1rem; position: relative; }
   .fit-col.good li::before { content: "+"; color: var(--approve); position: absolute; left: 0; }
   .fit-col.bad li::before { content: "−"; color: var(--deny); position: absolute; left: 0; }
 
   .pilot-box { border: 1px solid #6d531f; background: #110f0a; padding: 1.6rem; margin-top: 2rem; }
   .pilot-box h3 { font-size: 1.1rem; margin-bottom: 0.55rem; }
-  .pilot-box p { color: var(--muted); font-size: 0.88rem; }
+  .pilot-box p { color: var(--muted); font-size: 0.95rem; }
   .pilot-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.4rem 0 0; }
-  .pilot-step { border-top: 1px solid #6d531f; padding-top: 0.75rem; color: var(--muted); font-size: 0.8rem; }
+  .pilot-step { border-top: 1px solid #6d531f; padding-top: 0.75rem; color: var(--muted); font-size: 0.9rem; }
   .pilot-step b { color: var(--text); display: block; margin-bottom: 0.25rem; }
 
   .objections { margin-top: 2rem; border: 1px solid var(--rule); }
   details { border-top: 1px solid var(--rule); background: var(--panel); }
   details:first-child { border-top: 0; }
-  summary { cursor: pointer; padding: 1rem 1.15rem; color: var(--text); font-size: 0.86rem; }
-  details p { color: var(--muted); padding: 0 1.15rem 1.1rem; font-size: 0.84rem; }
+  summary { cursor: pointer; padding: 1rem 1.15rem; color: var(--text); font-size: 0.95rem; }
+  details p { color: var(--muted); padding: 0 1.15rem 1.1rem; font-size: 0.92rem; }
 
   /* how-it-works steps */
   .steps { border: 1px solid var(--rule); border-radius: 6px; margin: 2rem 0 2.5rem; }
@@ -205,7 +244,7 @@
     font-size: 0.85rem;
     border-right: 1px solid var(--rule);
   }
-  .step dd { padding: 1.1rem 1.2rem; color: var(--muted); font-size: 0.88rem; }
+  .step dd { padding: 1.1rem 1.2rem; color: var(--muted); font-size: 0.95rem; }
   .step dd code { color: var(--text); }
 
   .verdicts { display: grid; grid-template-columns: 1.12fr 1fr; gap: 1.25rem; align-items: start; }
@@ -213,7 +252,7 @@
   .deny-card { border-color: #6e2b28; }
   .deny-card .verdict-bar { color: var(--deny); border-bottom-color: #6e2b28; }
   .approve-card .verdict-bar { color: var(--approve); }
-  .caption { color: var(--faint); font-size: 0.78rem; margin-top: 1.1rem; max-width: 44rem; }
+  .caption { color: var(--faint); font-size: 0.84rem; margin-top: 1.1rem; max-width: 44rem; }
 
   /* findings */
   .finding { border-left: 2px solid var(--rule); padding-left: 1.4rem; margin: 2.25rem 0; }
@@ -239,8 +278,11 @@
     .step dt { border-right: none; padding-bottom: 0; }
     .step dd { padding-top: 0.35rem; }
     .buyer-grid, .motion-grid, .pilot-steps { grid-template-columns: 1fr; }
-    .fit-box, .market-signal { grid-template-columns: 1fr; }
-    .navlinks a:not(:last-child) { display: none; }
+    .fit-box, .market-signal, .proves { grid-template-columns: 1fr; }
+    .navlinks { gap: 1rem; }
+    .navlinks .wide-only { display: none; }
+    .navlinks .long { display: none; }
+    .navlinks .short { display: inline; }
   }
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -249,62 +291,67 @@
 <main>
 
   <nav class="topbar" aria-label="Primary navigation">
-    <a class="brand" href="#hero">
-      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-        <rect width="64" height="64" fill="#05070A"/>
-        <rect x="8" y="3" width="8" height="58" fill="#F4F2EC"/>
-        <rect x="48" y="3" width="8" height="58" fill="#F4F2EC"/>
-        <rect x="30" y="25" width="4" height="14" fill="#3157E8"/>
+    <a class="brand" href="/">
+      <svg class="brand-mark" viewBox="0 0 76 84" aria-hidden="true" focusable="false">
+        <path fill="#F3F1EA" d="M0 0h26v30h-12v24h12v30H0z"/>
+        <path fill="#F3F1EA" d="M76 0H50v30h12v24H50v30h26z"/>
+        <rect x="26" y="36" width="24" height="12" fill="#3D5BFF"/>
       </svg>
-      <span>COUNTERROLL</span>
+      <span>Counterroll</span>
     </a>
     <div class="navlinks">
-      <a href="#how">How it works</a>
-      <a href="#why">Security</a>
-      <a href="/check/">Free x402 check</a>
-      <a href="/verify/">Verify a record</a>
-      <a href="#hero">Quickstart →</a>
+      <a class="wide-only" href="#how">How it works</a>
+      <a class="wide-only" href="#why">Security</a>
+      <a href="/check/"><span class="long">Free x402 check</span><span class="short">x402 check</span></a>
+      <a href="/verify/"><span class="long">Verify a record</span><span class="short">Verify</span></a>
+      <a class="nav-cta" href="mailto:hello@counterroll.dev?subject=Counterroll%20offline%20evaluation&amp;body=Company%3A%0AWhat%20would%20you%20like%20to%20evaluate%3F%3A%0APayment%20rail%20or%20facilitator%20you%20use%3A%0AFirst%20policy%20you%20would%20test%3A"><span class="long">Talk to us →</span><span class="short">Contact</span></a>
     </div>
   </nav>
 
   <!-- ══════════════════════════ seq 001 · hero ══════════════════════════ -->
   <section id="hero">
-    <div class="seq-label">seq <b>001</b> · INDEPENDENT ENFORCEMENT AND EVIDENCE FOR AGENT PAYMENTS</div>
+    <div class="seq-label">seq <b>001</b> · POLICY AND PROOF FOR AGENT PAYMENTS</div>
     <h1>Authorize first.<br>Keep the evidence.</h1>
-    <p class="sub">For x402 payment requests your integration explicitly routes through it, Counterroll applies a deny-by-default policy check. It evaluates supported requests against your policy, fails closed on anything it cannot safely evaluate, and, when a policy-evaluable APPROVE or DENY is recorded successfully, returns a signed, hash-chained record of it before settlement. Records show what Counterroll decided, not that a payment happened. Supported today: the x402 exact scheme with single-key wallets; examples on this page use Base identifiers from a shared demonstration sandbox.</p>
+    <p class="lede">Counterroll checks the x402 payment requests you route through it against your spending rules. When it records a policy decision on the ledger, it signs a record you can verify offline.</p>
+
+    <div class="cta-row">
+      <a class="btn primary" href="/verify/">See a signed refusal →</a>
+      <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20offline%20evaluation&amp;body=Company%3A%0AWhat%20would%20you%20like%20to%20evaluate%3F%3A%0APayment%20rail%20or%20facilitator%20you%20use%3A%0AFirst%20policy%20you%20would%20test%3A">Discuss an offline evaluation</a>
+    </div>
+    <p class="hero-more">Or run the <a href="/check/">free x402 setup check</a> on your project. Nothing is uploaded.</p>
 
     <div class="hero-proof" aria-label="Core capabilities">
       <span>Deny by default</span>
-      <span>Per-agent per-transaction and rolling-window caps</span>
+      <span>Per-agent per-payment and rolling-window caps</span>
       <span>Payee, network, and asset controls</span>
       <span>Decision records you can verify</span>
     </div>
 
-    <div class="term">
-      <div class="term-bar">quickstart.ts — runs against the shared public sandbox, no signup</div>
-      <pre><span class="tok-kw">import</span> { Counterroll, usdc } <span class="tok-kw">from</span> <span class="tok-str">'@counterroll/sdk'</span>;
-
-<span class="tok-cm">// Public sandbox: one published key, bundled demo agents, a live URL.</span>
-<span class="tok-kw">const</span> <span class="tok-const">cr</span> = <span class="tok-kw">new</span> <span class="tok-fn">Counterroll</span>({ apiKey: <span class="tok-str">'qm_sandbox_publicdemo_v1'</span> });
-
-<span class="tok-kw">const</span> <span class="tok-const">ok</span> = <span class="tok-kw">await</span> cr.<span class="tok-fn">check</span>({ agent: <span class="tok-str">'research-bot'</span>, to: <span class="tok-str">'openai'</span>, amount: <span class="tok-fn">usdc</span>(1) });
-<span class="tok-kw">const</span> <span class="tok-const">no</span> = <span class="tok-kw">await</span> cr.<span class="tok-fn">check</span>({ agent: <span class="tok-str">'research-bot'</span>, to: <span class="tok-str">'openai'</span>, amount: <span class="tok-fn">usdc</span>(500) });
-
-console.<span class="tok-fn">log</span>(ok.approved, no.reasons); <span class="tok-cm">// true  ['per_tx_cap_exceeded']</span>
-console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="tok-cm">// signed + hash-chained — verify it yourself</span></pre>
+    <div class="proves" id="proves">
+      <div class="proves-col yes">
+        <h3>A SIGNED RECORD PROVES</h3>
+        <ul>
+          <li>Counterroll made this decision for this agent, payee, and amount.</li>
+          <li>Which policy applied, or that no policy applied.</li>
+          <li>No signed field has changed since, checked against a public key you got by a separate route.</li>
+        </ul>
+      </div>
+      <div class="proves-col no">
+        <h3>IT DOES NOT PROVE</h3>
+        <ul>
+          <li>That money moved, or did not. Records show decisions, not payments.</li>
+          <li>That you have every record. For that you also need a trusted copy of the latest one.</li>
+          <li>Anything about refusals kept off the ledger, such as an unknown agent, a malformed or repeated request, or a refusal at settlement. Some return only an unsigned event ID; some leave no record.</li>
+        </ul>
+      </div>
+      <p class="scope">Supported today: the x402 exact scheme with single-key wallets, for requests your integration explicitly routes through Counterroll. Anything it cannot safely evaluate is refused. A missing record is not proof that no request or payment occurred.</p>
     </div>
-
-    <div class="cta-row">
-      <a class="btn primary" href="https://www.npmjs.com/package/@counterroll/sdk">npm i @counterroll/sdk →</a>
-      <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20offline%20evaluation&amp;body=Company%3A%0AWhat%20would%20you%20like%20to%20evaluate%3F%3A%0APayment%20rail%20or%20facilitator%20you%20use%3A%0AFirst%20policy%20you%20would%20test%3A">Discuss an offline evaluation</a>
-    </div>
-    <div class="cta-hint">Run the quickstart above against the shared public sandbox — no account, no key request. The sandbox is a shared demonstration with synthetic inputs and a published key. It is not a production service, and its isolation has not been established, so do not treat it as an isolated testnet environment. Use only the bundled synthetic demo inputs; never send real credentials, wallet keys, signed payment authorizations or customer data.</div>
 
     <div class="market-signal">
       <div class="label">WHY NOW</div>
       <div>
-        <p><a href="https://www.x402.org/">x402</a> is an open protocol for payments over HTTP, and agent tooling such as <a href="https://developers.cloudflare.com/agents/tools/payments/x402/">Cloudflare Agents</a> documented x402 payment support as of 2026-07-14. Teams that let agents pay need to decide what is authorized and keep evidence of those decisions.</p>
-        <small>Protocol context observed 2026-07-14. Not a claim about current adoption, or about Counterroll customers or revenue.</small>
+        <p><a href="https://www.x402.org/">x402</a> lets agents pay for APIs over HTTP. In October 2026 a <a href="https://labs.cloudsecurityalliance.org/research/csa-research-note-x402-agent-payment-sdk-flaws-20261025-csa/">Cloud Security Alliance research note</a> reported flaws in x402 client SDKs, since fixed, including clients with no default spending limit that paid whatever the server asked for. Limits matter, and so does a record of what they decided.</p>
+        <small>Source read 2026-11-20 for the <a href="/check/">x402 setup check</a>. Not a claim about adoption, or about Counterroll customers or revenue.</small>
       </div>
     </div>
   </section>
@@ -315,18 +362,18 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
   <section id="outcomes">
     <div class="seq-label">seq <b>002</b> · WHAT YOUR TEAM GAINS</div>
     <h2>Policy checks for routed agent payment requests</h2>
-    <p class="sub">A wallet limit can cap an amount. For supported requests that reach policy evaluation, Counterroll records which agent asked, which policy was applied, why the decision was made, and whether the record still verifies later.</p>
+    <p class="sub">A wallet limit can cap an amount. For supported requests that reach policy evaluation, Counterroll records which agent asked, which policy was applied (or that none was), why the decision was made, and whether the record still verifies later.</p>
 
     <div class="buyer-grid">
       <article class="buyer-card">
         <div class="num">01 / CONTROL</div>
         <h3>Make policy executable</h3>
-        <p>Express per-agent caps for each payment and over a rolling window, plus payee, network, and asset rules. No matching policy or an ambiguous rule means DENY. Malformed inputs are rejected; some rejections are errors rather than signed policy DENYs.</p>
+        <p>Express per-agent caps for each payment and over a rolling window, plus payee, network, and asset rules. No matching policy or an ambiguous rule means DENY.</p>
       </article>
       <article class="buyer-card">
         <div class="num">02 / EVIDENCE</div>
         <h3>Keep the reason, not just the result</h3>
-        <p>Each successfully recorded policy-evaluable APPROVE and DENY is signed and preserves the applied policy snapshot—or its absence—plus decision reasons and a hash-chain link. Some requests refused before policy evaluation are recorded separately without a signature, and some refusals leave no record. A missing record is not proof that no request or payment occurred.</p>
+        <p>Each APPROVE and DENY recorded on the ledger is signed and keeps the policy it was decided against (or that none applied), the reasons, and a link to the record before it. See <a href="#proves">what a record does not prove</a>.</p>
       </article>
       <article class="buyer-card">
         <div class="num">03 / INDEPENDENCE</div>
@@ -343,6 +390,22 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
     <div class="seq-label">seq <b>003</b> · HOW IT WORKS</div>
     <h2>check → receipt → chain → verify</h2>
 
+    <div class="term">
+      <div class="term-bar">quickstart.ts — runs against the shared public sandbox, no signup</div>
+      <pre><span class="tok-kw">import</span> { Counterroll, usdc } <span class="tok-kw">from</span> <span class="tok-str">'@counterroll/sdk'</span>;
+
+<span class="tok-cm">// Public sandbox: one published key, bundled demo agents, a live URL.</span>
+<span class="tok-kw">const</span> <span class="tok-const">cr</span> = <span class="tok-kw">new</span> <span class="tok-fn">Counterroll</span>({ apiKey: <span class="tok-str">'qm_sandbox_publicdemo_v1'</span> });
+
+<span class="tok-kw">const</span> <span class="tok-const">ok</span> = <span class="tok-kw">await</span> cr.<span class="tok-fn">check</span>({ agent: <span class="tok-str">'research-bot'</span>, to: <span class="tok-str">'openai'</span>, amount: <span class="tok-fn">usdc</span>(1) });
+<span class="tok-kw">const</span> <span class="tok-const">no</span> = <span class="tok-kw">await</span> cr.<span class="tok-fn">check</span>({ agent: <span class="tok-str">'research-bot'</span>, to: <span class="tok-str">'openai'</span>, amount: <span class="tok-fn">usdc</span>(500) });
+
+console.<span class="tok-fn">log</span>(ok.approved, no.reasons); <span class="tok-cm">// true  ['per_tx_cap_exceeded']</span>
+console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="tok-cm">// signed + hash-chained — verify it yourself</span></pre>
+    </div>
+
+    <p class="cta-hint">Install with <a href="https://www.npmjs.com/package/@counterroll/sdk"><code>npm i @counterroll/sdk</code></a>. The shared public sandbox uses synthetic inputs and a published key: no account, no key request. It is a demonstration, not a production service, and its isolation has not been established. Use only the bundled demo inputs; never send real credentials, wallet keys, signed payment authorizations or customer data.</p>
+
     <dl class="steps">
       <div class="step">
         <dt>1 · check()</dt>
@@ -350,7 +413,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
       </div>
       <div class="step">
         <dt>2 · signed receipt</dt>
-        <dd>When a policy-evaluable APPROVE or DENY is recorded successfully, Counterroll returns an attestation signed with your organization's Counterroll Ed25519 key, carrying the exact policy snapshot it was evaluated against. If the record cannot be written, the request fails rather than being approved without one. Requests refused before policy evaluation, such as from unknown agents, with malformed payloads, or with replayed nonces, fail closed and are kept off the chain: some are recorded separately without a signature, and some leave no record. Refusals at settlement time do not produce a signed decision record. A missing record is not proof that no request or payment occurred.</dd>
+        <dd>When an APPROVE or DENY is recorded on the ledger, Counterroll returns an attestation signed with your organization's Counterroll Ed25519 key, carrying the exact policy snapshot it was evaluated against, or none if no policy applied. If the record cannot be written, the request fails rather than being approved without one. Some refusals, such as a repeated request, are kept off the chain and return only an unsigned event ID; see <a href="#proves">what a record does not prove</a>.</dd>
       </div>
       <div class="step">
         <dt>3 · hash chain</dt>
@@ -418,7 +481,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
 }</pre>
       </div>
     </div>
-    <p class="caption">Rows 1 and 2 of Counterroll's shared public sandbox chain (<code>org_sandbox</code>), read from the deployed sandbox API on 2026-07-23. The sandbox is a shared demonstration with synthetic inputs and a published key; it is not a production service, and its isolation has not been established. The hashes and signatures are shown as returned then: the DENY's <code>prevHash</code> is the APPROVE's <code>hash</code>, and both signatures verified against the sandbox's published anchor <code>e9d3619e…b6d1</code>. <code>cr.verify({ publicKey })</code> re-derives the chain you are given against that key; it does not show that the chain is complete or current. A DENY records that Counterroll refused the request under policy; on its own it does not show what happened on the payment rail.</p>
+    <p class="caption">Rows 1 and 2 of Counterroll's shared public sandbox chain (<code>org_sandbox</code>), recorded 2026-07-18 and read again from the deployed sandbox API on 2026-11-22. Both re-checked offline that day with the free <a href="/verify/">record verifier</a> against the sandbox's published key <code>e9d3619e…b6d1</code>: each passed, and the DENY's <code>prevHash</code> is the APPROVE's <code>hash</code>. The sandbox is a shared demonstration with synthetic inputs and a published key; it is not a production service, and its isolation has not been established. <code>cr.verify({ publicKey })</code> re-derives the chain you are given against that key; it does not show that the chain is complete or current. A DENY records that Counterroll refused the request under policy; on its own it does not show what happened on the payment rail.</p>
   </section>
 
   <div class="chain-link">prevHash: <span class="h">dbf1b4efee0ff1baf6e76dce561627452f25affecae65d1735fc2ae0eb97c616</span> · sandbox seq 3 · APPROVE · $1.00 → openai</div>
@@ -427,7 +490,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
   <section id="pilot">
     <div class="seq-label">seq <b>004</b> · EVALUATION</div>
     <h2>Start with an offline evaluation.</h2>
-    <p class="sub">The SDK is public — start there. Beyond it, we are open to discussing an offline evaluation that uses synthetic inputs and involves no payments. Production use and embedded platform integrations are exploratory conversations only: they are gated on readiness work and are not an offering available today.</p>
+    <p class="sub">The record verifier, the x402 setup check and the SDK are free. Beyond them, we are open to discussing an offline evaluation that uses synthetic inputs and involves no payments. Production use and embedded platform integrations are exploratory conversations only: they are gated on readiness work and are not an offering available today.</p>
 
     <div class="motion-grid">
       <div class="motion-card">
@@ -472,8 +535,8 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
         <div class="pilot-step"><b>3 · Architecture</b>Would the control remain useful if you changed wallets, facilitators, or settlement infrastructure?</div>
       </div>
       <div class="cta-row">
-        <a class="btn primary" href="https://www.npmjs.com/package/@counterroll/sdk">Start with the public SDK →</a>
-        <a class="btn" href="mailto:hello@counterroll.dev?subject=Counterroll%20offline%20evaluation&amp;body=Company%3A%0AWhat%20would%20you%20like%20to%20evaluate%3F%3A%0APayment%20rail%20or%20facilitator%20you%20use%3A%0AFirst%20policy%20you%20would%20test%3A">Discuss an offline evaluation</a>
+        <a class="btn primary" href="mailto:hello@counterroll.dev?subject=Counterroll%20offline%20evaluation&amp;body=Company%3A%0AWhat%20would%20you%20like%20to%20evaluate%3F%3A%0APayment%20rail%20or%20facilitator%20you%20use%3A%0AFirst%20policy%20you%20would%20test%3A">Discuss an offline evaluation →</a>
+        <a class="btn" href="/verify/">See a signed refusal</a>
       </div>
       <div class="cta-hint">The email opens with a few prompts. It starts a conversation about an offline synthetic evaluation; it is not an order, and it includes no live, testnet or production access.</div>
     </div>
@@ -481,7 +544,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
     <div class="objections">
       <details>
         <summary>Why not rely only on wallet spending limits?</summary>
-        <p>Wallet limits are useful and Counterroll does not replace them. Counterroll adds a decision layer for each organization: agent identity, a policy assigned to each agent with per-agent per-payment and rolling-window caps, payee and rail restrictions, explicit deny reasons, and a signed policy snapshot for each successfully recorded policy-evaluable decision, kept in a chain you can verify.</p>
+        <p>Wallet limits are useful and Counterroll does not replace them. Counterroll adds a decision layer for each organization: agent identity, a policy assigned to each agent with per-agent per-payment and rolling-window caps, payee and rail restrictions, explicit deny reasons, and a signed record of each decision recorded on the ledger, with the policy snapshot it used, kept in a chain you can verify.</p>
       </details>
       <details>
         <summary>Does Counterroll hold funds or settle payments?</summary>
@@ -493,7 +556,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
       </details>
       <details>
         <summary>What does a DENY look like to the agent?</summary>
-        <p>A DENY is a successful policy evaluation, not an exception. The agent receives <code>approved: false</code> plus machine-readable reasons such as <code>per_tx_cap_exceeded</code>, and a successfully recorded DENY is kept as a signed record. It records Counterroll's refusal; on its own it does not show what happened on the payment rail.</p>
+        <p>A DENY is a successful policy evaluation, not an exception. The agent receives <code>approved: false</code> plus machine-readable reasons such as <code>per_tx_cap_exceeded</code>, and a DENY recorded on the ledger is kept as a signed record. Some refusals, such as a repeated request, return only an unsigned event ID. It records Counterroll's refusal; on its own it does not show what happened on the payment rail.</p>
       </details>
     </div>
   </section>
@@ -529,7 +592,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
   <section id="independence">
     <div class="seq-label">seq <b>006</b> · INDEPENDENCE</div>
     <h2>The system that authorizes should not be the only system you must trust.</h2>
-    <p>Counterroll has no custody and holds no settlement keys: v1 authorizes, attests, and records. When it approves a settlement request, it proxies that request to the x402 facilitator your organization configures, and that facilitator may then make the payment. A governance layer is only credible if it can say no to the rail itself — so its records are built to be checked against a key you authenticate yourself, rather than on our word.</p>
+    <p>Counterroll has no custody and holds no settlement keys: v1 authorizes, attests, and records. A control layer is only credible if its records can be checked against a key you authenticate yourself, rather than taken on our word.</p>
 
     <div class="motion-grid">
       <div class="motion-card">
@@ -544,7 +607,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
       </div>
     </div>
 
-    <p style="margin-top:1.5rem">Verify against the organization's public key, authenticated independently: <code>cr.verify({ publicKey })</code> re-derives the hashes and signatures of the records you receive against that key — <code>e9d3619e…b6d1</code> for the public sandbox. A database rewritten and re-signed with a different key fails that check. To notice missing records, compare against a trusted reference for the latest expected record. Verification does not show that the chain is complete or that any payment happened.</p>
+    <p style="margin-top:1.5rem">Verify against the organization's public key, authenticated independently: <code>cr.verify({ publicKey })</code> re-derives the hashes and signatures of the records you receive against that key — <code>e9d3619e…b6d1</code> for the public sandbox. A database rewritten and re-signed with a different key fails that check. Verification does not show that the chain is complete or that any payment happened.</p>
   </section>
 
   <div class="chain-link">prevHash: <span class="h">063ab6d9b55e036d7eb48bff0506b6310925471ed754a5ddd7a9065d1a5822de</span> · sandbox seq 6 · DENY · signed under sandbox anchor e9d3619e…</div>
@@ -559,6 +622,7 @@ console.<span class="tok-fn">log</span>(no.receipt!.hash);        <span class="t
       <div class="cell"><span>free tool</span><a href="/check/">x402 setup check</a></div>
       <div class="cell"><span>free tool</span><a href="/verify/">record verifier</a></div>
       <div class="cell"><span>contact</span><a href="mailto:hello@counterroll.dev">hello@counterroll.dev</a></div>
+      <div class="cell"><span>privacy</span><a href="/privacy/">how visits are counted</a></div>
     </div>
     <div class="colophon">ledger: append-only writes · chain: SHA-256 · signatures: Ed25519 · amounts: atomic-unit strings — no floats were harmed</div>
   </footer>
