@@ -50,7 +50,7 @@
   ul { padding-left: 1.2rem; margin-bottom: .9rem; }
   li { margin-bottom: .35rem; }
   code { color: #f0f6fc; overflow-wrap: anywhere; }
-  pre { white-space: pre-wrap; overflow-wrap: anywhere; color: #f0f6fc; font-size: .85rem; }
+  pre { white-space: pre; overflow-x: auto; max-width: 100%; color: #f0f6fc; font-size: .85rem; background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: .75rem .9rem; margin-bottom: .9rem; }
   footer { margin-top: 3rem; color: var(--faint); font-size: .8rem; }
   [hidden] { display: none !important; }
   @media (max-width: 30rem) { .row { grid-template-columns: 1fr; } .row > span:nth-child(even) { margin-bottom: .4rem; } }
@@ -110,15 +110,16 @@
   <p>The same check, open source under the MIT licence, with no dependencies. With Node 18 or later:</p>
   <pre>git clone https://github.com/Counterroll/verify
 cd verify
-node bin/counterroll-verify.mjs examples/refusal-original.json --key &lt;key&gt;</pre>
+node bin/counterroll-verify.mjs examples/refusal-original.json \
+  --key ab0aba4ac25570cf8c0b27a729fb47923461c9f9be7c3e60a982857685f8586c</pre>
   <p class="muted">The record format is published in <a href="https://github.com/Counterroll/verify/blob/main/FORMAT.md" rel="noopener noreferrer">FORMAT.md</a>. It is Counterroll's own format, not an industry standard.</p>
 
   <h2>Verification is free. Evaluation is the paid part.</h2>
   <p>Anyone can verify Counterroll records at no cost. If you want to know how Counterroll's policy checks would handle your own agent payment scenarios, we run them offline on synthetic data and give you the signed records, edited copies and a written report: <a href="mailto:hello@counterroll.dev?subject=Offline%20evaluation">hello@counterroll.dev</a>.</p>
 
-  <p class="muted">Not the <a href="/check/">x402 setup check</a>, which looks at your project's x402 settings.</p>
+  <p class="muted">Checking your project's x402 setup? The <a href="/check/">x402 setup check</a> looks for x402 SDK versions with publicly reported flaws and for settings that turn the default spending limit off.</p>
 
-  <footer>counterroll-verify <span id="tool-version"></span> by Counterroll. Written by Counterroll and not independently audited.</footer>
+  <footer>counterroll-verify <span id="tool-version"></span> · Built by Counterroll. The verifier has not been independently audited.</footer>
 </main>
 <script type="module" src="./app.mjs"></script>
 </body>
